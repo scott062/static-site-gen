@@ -21,23 +21,34 @@ class TextNode:
         return f"TextNode({self.text}, {self.text_type}, {self.url})" 
 
 
-Texttype = Enum("Texttype", ["text", "bold", "italic", "code", "link", "image"])
 
 def text_node_to_html_node(text_node):
     content = text_node.value
     match (text_node.text_type):
-        case (Texttype.text):
+        case ("text"):
             return LeafNode(None, content)
-        case (Texttype.bold):
+        case ("bold"):
             return LeafNode("b", content)
-        case (Texttype.italic):
+        case ("italic"):
             return LeafNode("i", content)
-        case (Texttype.code):
+        case ("code"):
             return LeafNode("code", content)
-        case (Texttype.link):
+        case ("link"):
             return LeafNode("a", content, {"href": text_node.url})
-        case (Texttype.image):
+        case ("image"):
             return LeafNode("img", "", {"src": text_node.url, "alt": content})
         case _:
             raise Exception("Not a valid text type")
 
+allowed_types = {"text": None, "bold": "**", "italic": "*", "code": "`", "link": None, "image": None}
+
+def split_nodes_delimiter(old_nodes, delimiter, text_type):
+    if text_type not in allowed_types:
+        return old_nodes
+    if delimiter is None or delimiter not in allowed_types.values():
+        raise ValueError(f"{delimiter} is not a valid md delimiter")
+    return_nodes = []
+    for node in old_nodes:
+        return_nodes.append(LeafNode())
+        
+        
