@@ -10,7 +10,7 @@ class TestHTMLNode(unittest.TestCase):
 
     def test_props_to_html(self):
         node = HTMLNode(None, None, None, { "htmlProp": "first", "htmlPropAgain": "second" })
-        self.assertEqual(node.props_to_html(), " htmlProp=first htmlPropAgain=second")
+        self.assertEqual(node.props_to_html(), ' htmlProp="first" htmlPropAgain="second"')
 
     def test_repr(self):
         node = HTMLNode("p", "gigi", None, { "htmlProp": "first", "htmlPropAgain": "second" })
