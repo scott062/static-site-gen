@@ -1,4 +1,3 @@
-from enum import Enum
 from leafnode import LeafNode
 
 
@@ -44,11 +43,26 @@ allowed_types = {"text": None, "bold": "**", "italic": "*", "code": "`", "link":
 
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
     if text_type not in allowed_types:
-        return old_nodes
-    if delimiter is None or delimiter not in allowed_types.values():
-        raise ValueError(f"{delimiter} is not a valid md delimiter")
-    return_nodes = []
+        raise ValueError(f"{text_type} is not a supported type")
+    if not delimiter or delimiter not in allowed_types.values():
+        raise ValueError(f"{delimiter} is not a valid Markdown delimiter")
+    if delimiter != allowed_types.get(text_type):
+        raise ValueError(f"Markdown delimiter {delimiter} does not match type {text_type}")
+
+    new_nodes = []
     for node in old_nodes:
-        return_nodes.append(LeafNode())
+        if node.text_type != "text":
+            new_nodes.append(node)
+        else:
+            split_text = node.text.split(delimiter)
+            len_content = len(split_text)
+            if (len_content - 1) % 2 != 0:
+                raise Exception("Invalid Markdown syntax") 
+            for x in range(len_content): 
+                if x % 2 == 0:
+                    new_nodes.append(TextNode(split_text[x], "text"))
+                else:
+                    new_nodes.append(TextNode(split_text[x], text_type))
+    return new_nodes
         
         
