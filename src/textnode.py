@@ -56,7 +56,7 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
         else:
             split_text = node.text.split(delimiter)
             len_content = len(split_text)
-            if (len_content - 1) % 2 != 0:
+            if len_content % 2 == 0:
                 raise Exception("Invalid Markdown syntax") 
             for x in range(len_content): 
                 if x % 2 == 0:
