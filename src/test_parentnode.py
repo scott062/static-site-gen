@@ -10,7 +10,10 @@ class TestParentNode(unittest.TestCase):
             "p",
             [LeafNode("b", "Bold text")]
         )
-        self.assertEqual(repr(node), "ParentNode(p, [LeafNode(b, Bold text, None)], None)")
+        self.assertEqual(
+            repr(node), 
+            "ParentNode(p, [LeafNode(b, Bold text, None)], None)"
+        )
 
     def test_flat_children(self):
         node = ParentNode(
@@ -22,7 +25,10 @@ class TestParentNode(unittest.TestCase):
                 LeafNode(None, "!"),
             ],
         )
-        self.assertEqual(node.to_html(), "<p><b>BOLDLY</b>beam me up<i>italic scotty</i>!</p>")
+        self.assertEqual(
+            node.to_html(), 
+            "<p><b>BOLDLY</b>beam me up<i>italic scotty</i>!</p>"
+        )
 
     def test_missing_children(self):
         node = ParentNode("p", None)
