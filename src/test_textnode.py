@@ -48,18 +48,17 @@ class TestTextNode(unittest.TestCase):
         self.assertEqual(split_nodes_delimiter([node], "**", "bold"), [node1, node2, node3])
 
     def test_split_nodes_multi_node(self):
-        node = TextNode("This is a nested bold **text node**.", "text")
+        node = TextNode("**This is a nested bold** text node.", "text")
         another_node = TextNode("Time for more bold **text node**!", "text")
         # Expected Nodes to be created below
-        node1 = TextNode("This is a nested bold ", "text", None)
-        node2 = TextNode("text node", "bold", None)
-        node3 = TextNode(".", "text", None)
-        node4 = TextNode("Time for more bold ", "text", None)
-        node5 = TextNode("text node", "bold", None)
-        node6 = TextNode("!", "text", None)
+        node1 = TextNode("This is a nested bold", "bold", None)
+        node2 = TextNode(" text node.", "text", None)
+        node3 = TextNode("Time for more bold ", "text", None)
+        node4 = TextNode("text node", "bold", None)
+        node5 = TextNode("!", "text", None)
         self.assertEqual(
             split_nodes_delimiter([node, another_node], "**", "bold")
-            , [node1, node2, node3, node4, node5, node6]
+            , [node1, node2, node3, node4, node5]
         )
 
     def test_split_nodes_non_text(self):

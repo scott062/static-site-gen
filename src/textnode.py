@@ -59,6 +59,11 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
             if len_content % 2 == 0:
                 raise Exception("Invalid Markdown syntax") 
             for x in range(len_content): 
+                # When Markdown delimiter is at the beginning of a line, it will
+                # split into ['', ..., ...]. This skips any empty '' so we do
+                # not create unnecessary nodes
+                if not split_text[x]:
+                    continue
                 if x % 2 == 0:
                     new_nodes.append(TextNode(split_text[x], "text"))
                 else:
