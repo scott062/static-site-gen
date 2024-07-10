@@ -42,6 +42,8 @@ def text_node_to_html_node(text_node):
 allowed_types = {"text": None, "bold": "**", "italic": "*", "code": "`", "link": None, "image": None}
 
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
+    # Redundant checks for different cases
+    # TO-DO: Determine if extra checks are helpful interface
     if text_type not in allowed_types:
         raise ValueError(f"{text_type} is not a supported type")
     if not delimiter or delimiter not in allowed_types.values():
