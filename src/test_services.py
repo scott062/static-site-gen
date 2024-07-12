@@ -44,7 +44,12 @@ class TestServices(unittest.TestCase):
         self.assertRaises(ValueError, lambda: split_nodes_delimiter([node], "**", "italic"))
 
     def test_extract_markdown_images(self):
-        text = "This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)"
+        text = "This is text with a![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)"
+        res = [("rick roll", "https://i.imgur.com/aKaOqIh.gif"), ("obi wan", "https://i.imgur.com/fJRm4Vk.jpeg")]
+        self.assertEqual(extract_markdown_images(text), res)
+
+    def test_extract_beginning_markdown_images(self):
+        text = "![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)"
         res = [("rick roll", "https://i.imgur.com/aKaOqIh.gif"), ("obi wan", "https://i.imgur.com/fJRm4Vk.jpeg")]
         self.assertEqual(extract_markdown_images(text), res)
 
@@ -64,7 +69,12 @@ class TestServices(unittest.TestCase):
         self.assertEqual(extract_markdown_images(text), res)
 
     def test_extract_markdown_links(self):
-        text = "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)"
+        text = "This is text with a link [to boot dev](https://www.boot.dev) and[to youtube](https://www.youtube.com/@bootdotdev)"
+        res = [("to boot dev", "https://www.boot.dev"), ("to youtube", "https://www.youtube.com/@bootdotdev")]
+        self.assertEqual(extract_markdown_links(text), res)
+
+    def test_extract_beginning_markdown_links(self):
+        text = "[to boot dev](https://www.boot.dev) and[to youtube](https://www.youtube.com/@bootdotdev)"
         res = [("to boot dev", "https://www.boot.dev"), ("to youtube", "https://www.youtube.com/@bootdotdev")]
         self.assertEqual(extract_markdown_links(text), res)
 
