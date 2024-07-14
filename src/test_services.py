@@ -1,7 +1,7 @@
 import unittest
 
 from textnode import TextNode
-from services import split_nodes_delimiter, extract_markdown_images, extract_markdown_links
+from services import split_nodes_delimiter, extract_markdown_images, extract_markdown_links, split_nodes_image, split_nodes_link
 
 
 class TestServices(unittest.TestCase):
@@ -92,6 +92,76 @@ class TestServices(unittest.TestCase):
         text = ""
         res = []
         self.assertEqual(extract_markdown_links(text), res)
+
+    def test_split_images_single_node(self):
+        node = TextNode("This is text with a![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)", "text")
+        # Expected Nodes to be created below
+        node1 = TextNode("This is text with a", "text", None)
+        node2 = TextNode("rick roll", "image", "https://i.imgur.com/aKaOqIh.gif")
+        node3 = TextNode(" and ", "text", None)
+        node4 = TextNode("obi wan", "image", "https://i.imgur.com/fJRm4Vk.jpeg")
+        self.assertEqual(split_nodes_image([node]), [node1, node2, node3, node4])
+
+    def test_split_images_beginning(self):
+        node = TextNode("![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg) and ending sentence.", "text")
+        # Expected Nodes to be created below
+        node1 = TextNode("rick roll", "image", "https://i.imgur.com/aKaOqIh.gif")
+        node2 = TextNode(" and ", "text", None)
+        node3 = TextNode("obi wan", "image", "https://i.imgur.com/fJRm4Vk.jpeg")
+        node4 = TextNode(" and ending sentence.", "text", None)
+        self.assertEqual(split_nodes_image([node]), [node1, node2, node3, node4])
+
+    def test_split_no_images(self):
+        node = TextNode("This is text with a [no image](https://i.imgur.com/fJRm4Vk.jpeg)", "text")
+        res = TextNode("This is text with a [no image](https://i.imgur.com/fJRm4Vk.jpeg)", "text", None)
+        self.assertEqual(split_nodes_image([node]), [res])
+
+    def test_split_almost_match_images(self):
+        node = TextNode("This is text with a ![rick roll] (https://i.imgur.com/aKaOqIh.gif) and ![obi wan]try to break it(https://i.imgur.com/fJRm4Vk.jpeg)", "text")
+        res = TextNode("This is text with a ![rick roll] (https://i.imgur.com/aKaOqIh.gif) and ![obi wan]try to break it(https://i.imgur.com/fJRm4Vk.jpeg)", "text", None)
+        self.assertEqual(split_nodes_image([node]), [res])
+
+    def test_split_only_image(self):
+        node = TextNode("![rick roll](https://i.imgur.com/aKaOqIh.gif)![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)", "text")
+        # Expected Nodes to be created below
+        node1 = TextNode("rick roll", "image", "https://i.imgur.com/aKaOqIh.gif")
+        node2 = TextNode("obi wan", "image", "https://i.imgur.com/fJRm4Vk.jpeg")
+        self.assertEqual(split_nodes_image([node]), [node1, node2])
+
+    def test_split_links_single_node(self):
+        node = TextNode("This is text with a[rick roll](https://i.imgur.com/aKaOqIh.gif) and [obi wan](https://i.imgur.com/fJRm4Vk.jpeg)", "text")
+        # Expected Nodes to be created below
+        node1 = TextNode("This is text with a", "text", None)
+        node2 = TextNode("rick roll", "link", "https://i.imgur.com/aKaOqIh.gif")
+        node3 = TextNode(" and ", "text", None)
+        node4 = TextNode("obi wan", "link", "https://i.imgur.com/fJRm4Vk.jpeg")
+        self.assertEqual(split_nodes_link([node]), [node1, node2, node3, node4])
+
+    def test_split_links_beginning(self):
+        node = TextNode("[rick roll](https://i.imgur.com/aKaOqIh.gif) and [obi wan](https://i.imgur.com/fJRm4Vk.jpeg) and ending sentence.", "text")
+        # Expected Nodes to be created below
+        node1 = TextNode("rick roll", "link", "https://i.imgur.com/aKaOqIh.gif")
+        node2 = TextNode(" and ", "text", None)
+        node3 = TextNode("obi wan", "link", "https://i.imgur.com/fJRm4Vk.jpeg")
+        node4 = TextNode(" and ending sentence.", "text", None)
+        self.assertEqual(split_nodes_link([node]), [node1, node2, node3, node4])
+
+    def test_split_no_links(self):
+        node = TextNode("This is text with a ![no link](https://i.imgur.com/fJRm4Vk.jpeg)", "text")
+        res = TextNode("This is text with a ![no link](https://i.imgur.com/fJRm4Vk.jpeg)", "text", None)
+        self.assertEqual(split_nodes_link([node]), [res])
+
+    def test_split_almost_match_links(self):
+        node = TextNode("This is text with a [rick roll] (https://i.imgur.com/aKaOqIh.gif) and [obi wan]try to break it(https://i.imgur.com/fJRm4Vk.jpeg)", "text")
+        res = TextNode("This is text with a [rick roll] (https://i.imgur.com/aKaOqIh.gif) and [obi wan]try to break it(https://i.imgur.com/fJRm4Vk.jpeg)", "text", None)
+        self.assertEqual(split_nodes_link([node]), [res])
+
+    def test_split_only_link(self):
+        node = TextNode("[rick roll](https://i.imgur.com/aKaOqIh.gif)[obi wan](https://i.imgur.com/fJRm4Vk.jpeg)", "text")
+        # Expected Nodes to be created below
+        node1 = TextNode("rick roll", "link", "https://i.imgur.com/aKaOqIh.gif")
+        node2 = TextNode("obi wan", "link", "https://i.imgur.com/fJRm4Vk.jpeg")
+        self.assertEqual(split_nodes_link([node]), [node1, node2])
 
 if __name__ == "__main__":
     unittest.main()

@@ -55,8 +55,53 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
                 else:
                     new_nodes.append(TextNode(split_text[x], text_type))
     return new_nodes
-        
- 
+
+
+def split_nodes_image(old_nodes):
+    new_nodes = []
+    for node in old_nodes:
+        images = extract_markdown_images(node.text)
+        if not images:
+            new_nodes.append(node)
+        else:
+            # To be modified on each loop to track remaining text 
+            node_text = node.text
+            for image in images:
+                split_text = node_text.split(f"![{image[0]}]({image[1]})", 1)
+                if len(split_text[0]):
+                    new_nodes.append(TextNode(split_text[0], "text"))
+                new_nodes.append(TextNode(image[0], "image", image[1]))
+                node_text = split_text[1] 
+            # Remaing text, if any, after removing all images
+            if len(node_text):
+                new_nodes.append(TextNode(node_text, "text"))
+    return new_nodes
+    
+
+def split_nodes_link(old_nodes):       
+    new_nodes = []
+    for node in old_nodes:
+        if node.text_type != "text":
+            new_nodes.append(node)
+            continue
+        links = extract_markdown_links(node.text)
+        if not links:
+            new_nodes.append(node)
+            continue
+        # node_text to be modified on each loop to track remaining text 
+        node_text = node.text
+        for link in links:
+            split_text = node_text.split(f"[{link[0]}]({link[1]})", 1)
+            if len(split_text[0]):
+                new_nodes.append(TextNode(split_text[0], "text"))
+            new_nodes.append(TextNode(link[0], "link", link[1]))
+            node_text = split_text[1] 
+        # Remaing text, if any, after removing all links
+        if len(node_text):
+            new_nodes.append(TextNode(node_text, "text"))
+    return new_nodes
+
+
 def extract_markdown_images(text):
     # regex pattern: "![ group1 ]( group2 )"
     return re.findall(r"!\[(.*?)\]\((.*?)\)", text) 
