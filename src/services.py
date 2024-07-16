@@ -111,3 +111,13 @@ def extract_markdown_links(text):
     # regex pattern: "[ group1 ]( group2 )"
     return re.findall(r"(?<!\!)\[(.*?)\]\((.*?)\)", text) 
 
+
+def text_to_textnodes(text):
+    boldified = split_nodes_delimiter([TextNode(text, "text")], "**", "bold")
+    italicized = split_nodes_delimiter(boldified, "*", "italic")
+    codified = split_nodes_delimiter(italicized, "`", "code")
+    linkified = split_nodes_link(codified)
+    imagified = split_nodes_image(linkified)
+    return imagified
+
+

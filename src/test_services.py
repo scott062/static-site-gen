@@ -1,15 +1,15 @@
 import unittest
 
 from textnode import TextNode
-from services import split_nodes_delimiter, extract_markdown_images, extract_markdown_links, split_nodes_image, split_nodes_link
+from services import split_nodes_delimiter, extract_markdown_images, extract_markdown_links, split_nodes_image, split_nodes_link, text_to_textnodes
 
 
 class TestServices(unittest.TestCase):
     def test_split_nodes_single_node(self):
-        node = TextNode("This is a nested bold **text node**.", "text")
+        node = TextNode("This is a nested bold **text**.", "text")
         # Expected Nodes to be created below
         node1 = TextNode("This is a nested bold ", "text", None)
-        node2 = TextNode("text node", "bold", None)
+        node2 = TextNode("text", "bold", None)
         node3 = TextNode(".", "text", None)
         self.assertEqual(split_nodes_delimiter([node], "**", "bold"), [node1, node2, node3])
 
@@ -162,6 +162,24 @@ class TestServices(unittest.TestCase):
         node1 = TextNode("rick roll", "link", "https://i.imgur.com/aKaOqIh.gif")
         node2 = TextNode("obi wan", "link", "https://i.imgur.com/fJRm4Vk.jpeg")
         self.assertEqual(split_nodes_link([node]), [node1, node2])
+
+    def test_text_to_textnodes(self):
+        text = "This is **text** with an *italic* word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)!"
+        node1 = TextNode("This is ", "text", None)
+        node2 = TextNode("text", "bold", None)
+        node3 = TextNode(" with an ", "text", None)
+        node4 = TextNode("italic", "italic", None)
+        node5 = TextNode(" word and a ", "text", None)
+        node6 = TextNode("code block", "code", None)
+        node7 = TextNode(" and an ", "text")
+        node8 = TextNode("obi wan image", "image", "https://i.imgur.com/fJRm4Vk.jpeg")
+        node9 = TextNode(" and a ", "text", None)
+        node10 = TextNode("link", "link", "https://boot.dev")
+        node11 = TextNode("!", "text", None)
+        self.assertEqual(
+            text_to_textnodes(text), 
+            [node1, node2, node3, node4, node5, node6, node7, node8, node9, node10, node11]
+        )
 
 if __name__ == "__main__":
     unittest.main()
