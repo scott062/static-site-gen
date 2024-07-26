@@ -4,7 +4,7 @@ from leafnode import LeafNode
 
 
 def text_node_to_html_node(text_node):
-    content = text_node.value
+    content = text_node.text
     match (text_node.text_type):
         case ("text"):
             return LeafNode(None, content)

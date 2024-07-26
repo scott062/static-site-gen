@@ -1,7 +1,6 @@
 from parentnode import ParentNode
-from textnode import TextNode
 from leafnode import LeafNode
-from htmlnode import HTMLNode
+from services import text_to_textnodes, text_node_to_html_node
 
 
 def markdown_to_blocks(markdown):
@@ -20,9 +19,9 @@ def block_to_block_type(block):
     is_ordered_list = True
 
     for line in lines:
-        if not line.startswith(">"): 
+        if not line.startswith(">"):
             is_quote = False
-        if not (line[:2].startswith("* ") or line.startswith("- ")): 
+        if not (line[:2].startswith("* ") or line.startswith("- ")):
             is_unordered_list = False
         if not (line[0].isnumeric() and ". " in line):
             is_ordered_list = False
@@ -33,32 +32,48 @@ def block_to_block_type(block):
     elif is_ordered_list:
         return "ordered_list"
     return "paragraph"
-    
+
 
 def markdown_to_html_node(markdown):
-    blocks = markdown_to_blocks(markdown)     
+    blocks = markdown_to_blocks(markdown)
     children = []
     for block in blocks:
         t = block_to_block_type(block)
-    match t:
-        case "paragraph":
-            children.append(HTMLNode("p", block))
-        case "heading":
-            h_count = block[:7].count("#")
-            children.append(HTMLNode(f"h{h_count}", block.strip("#")))
-        case "code":
-            c_content = block.strip("```")
-            children.append(ParentNode("pre",[LeafNode("code", c_content)]))
-        case "quote":
-            q_content = block.replace(">", "").strip()
-            children.append(HTMLNode("blockquote", q_content))
-        case "unordered_list":
-            c_li = [LeafNode("li", x.strip()) for x in block.split("*")]
-            children.append(ParentNode("ul", c_li))
-        case "ordered_list":
-            # To Do: Determine best wild card matching?
-            c_li = [LeafNode("li", x.strip()) for x in block.split("*")]
-            children.append(ParentNode("ol", c_li))
-            children.append()
-    return ParentNode("div", children)
+        match t:
+            case "paragraph":
+                children.append(ParentNode("p", convert_nested_text(block)))
+            case "heading":
+                h_count = block[:7].count("#")
+                children.append(
+                    ParentNode(f"h{h_count}", convert_nested_text(block.strip("# ")))
+                )
+            case "code":
+                c_content = block.strip("```")
+                children.append(ParentNode("pre", [LeafNode("code", c_content)]))
+            case "quote":
+                q_content = block.replace(">", "").strip()
+                children.append(
+                    ParentNode("blockquote", convert_nested_text(q_content))
+                )
+            case "unordered_list":
+                c_li = [
+                    ParentNode("li", convert_nested_text(x.strip()))
+                    for x in block.split("*")
+                    if x
+                ]
+                children.append(ParentNode("ul", c_li))
+            case "ordered_list":
+                c_li = [
+                    ParentNode("li", convert_nested_text(x.strip("1234567890. ")))
+                    for x in block.split("\n")
+                ]
+                children.append(ParentNode("ol", c_li))
+    return ParentNode("div", children, None)
 
+
+def convert_nested_text(text):
+    textnodes = text_to_textnodes(text)
+    converted_html = []
+    for node in textnodes:
+        converted_html.append(text_node_to_html_node(node))
+    return converted_html

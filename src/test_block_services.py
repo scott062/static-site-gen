@@ -1,6 +1,12 @@
 import unittest
 
-from block_services import markdown_to_blocks, block_to_block_type
+from block_services import (
+    markdown_to_blocks,
+    block_to_block_type,
+    markdown_to_html_node,
+)
+from leafnode import LeafNode
+from parentnode import ParentNode
 
 
 class TestBlockServices(unittest.TestCase):
@@ -45,6 +51,34 @@ This is a paragraph of text. It has some **bold** and *italic* words inside of i
     def test_block_to_block_type_ordered_list(self):
         text = "1. This is the first list item in a list block\n2. This is a list item\n3. This is another list item"
         self.assertEqual(block_to_block_type(text), "ordered_list")
+
+    def test_markdown_to_html_node(self):
+        text = """
+# This is a heading
+
+This is a paragraph of text. It has some **bold** and *italic* words inside of it.
+
+* This is the first list item in a list block
+* This is a list item
+"""
+
+        expected = "<div><h1>This is a heading</h1><p>This is a paragraph of text. It has some <b>bold</b> and <i>italic</i> words inside of it.</p><ul><li>This is the first list item in a list block</li><li>This is a list item</li></ul></div>"
+
+        self.assertEqual(markdown_to_html_node(text).to_html(), expected)
+
+    def test_markdown_to_html_node_again(self):
+        text = """
+##### This is a heading
+
+>This is a paragraph of text. It has some **bold** and *italic* words inside of it.
+
+1. This is the first list item in a list block
+2. This is a list item
+"""
+        expected = "<div><h5>This is a heading</h5><blockquote>This is a paragraph of text. It has some <b>bold</b> and <i>italic</i> words inside of it.</blockquote><ol><li>This is the first list item in a list block</li><li>This is a list item</li></ol></div>"
+
+        self.assertEqual(markdown_to_html_node(text).to_html(), expected)
+
 
 if __name__ == "__main__":
     unittest.main()
