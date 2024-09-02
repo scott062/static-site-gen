@@ -1,10 +1,12 @@
-from textnode import TextNode
 import os
 import shutil
+from block_services import markdown_to_html_node 
+from services import extract_title 
 
 def main():
     cleanup()
     generate()
+    generate_page("content/index.md", "template.html", "public/index.html")
 
 def cleanup():
     if os.path.exists("./public"):
@@ -28,9 +30,22 @@ def generate(src="./static", dst="./public"):
         else:
             generate(item_src, item_dst)
 
+def generate_page(from_path, template_path, dest_path):
+    print(f"Generating page from {from_path} to {dest_path} using {template_path}")
+    f = open(from_path)
+    from_content = f.read()
+    f.close()
+    t = open(template_path)
+    template_content = t.read()
+    t.close()
 
+    content = markdown_to_html_node(from_content).to_html()
+    title = extract_title(from_content)
+    new = template_content.replace("{{ Title }}", title)
+    new = new.replace("{{ Content }}", content)
 
-
-
+    n = open(dest_path, "w")
+    n.write(new)
+    n.close()
 
 main()

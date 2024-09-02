@@ -1,7 +1,7 @@
 import unittest
 
 from textnode import TextNode
-from services import split_nodes_delimiter, extract_markdown_images, extract_markdown_links, split_nodes_image, split_nodes_link, text_to_textnodes
+from services import split_nodes_delimiter, extract_markdown_images, extract_markdown_links, split_nodes_image, split_nodes_link, text_to_textnodes, extract_title
 
 
 class TestServices(unittest.TestCase):
@@ -180,6 +180,12 @@ class TestServices(unittest.TestCase):
             text_to_textnodes(text), 
             [node1, node2, node3, node4, node5, node6, node7, node8, node9, node10, node11]
         )
+
+    def test_extract_markdown_title(self):
+        text = "# Nice    "
+        res = "Nice" 
+        self.assertEqual(extract_title(text), res)
+
 
 if __name__ == "__main__":
     unittest.main()

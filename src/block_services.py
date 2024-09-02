@@ -57,9 +57,8 @@ def markdown_to_html_node(markdown):
                 )
             case "unordered_list":
                 c_li = [
-                    ParentNode("li", convert_nested_text(x.strip()))
-                    for x in block.split("*")
-                    if x
+                    ParentNode("li", convert_nested_text(x.strip("* ").rstrip()))
+                    for x in block.split("* ") if x
                 ]
                 children.append(ParentNode("ul", c_li))
             case "ordered_list":

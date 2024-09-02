@@ -121,3 +121,10 @@ def text_to_textnodes(text):
     return imagified
 
 
+def extract_title(text):
+    match = re.search(r"^# .*", text)
+    if not match:
+        raise Exception("Must include H1 header")
+    return match.group().lstrip("# ").rstrip()
+
+    
